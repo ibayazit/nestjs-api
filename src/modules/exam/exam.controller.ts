@@ -14,32 +14,32 @@ export class ExamController {
     const questions = await this.examService.questions(examDate);
     const examResults = this.makeExam(students, questions);
 
-    const test = []
     for (const university of universities) {
-      const studentChunk = students.splice(0, 5)
-      
-      await this.examService.attachStudentsToUniversity(university._id, students);
+      const studentChunk = (await examResults).splice(0, 5).map(student => {
+        student.university_id = university._id;
+
+        return student;
+      });
+
+      await this.examService.attachStudentsToUniversity(studentChunk);
     }
 
     return {
-      message: 'The exam is over and all students were appointed to their universities',
-      test
+      message: 'The exam is over and all students were appointed to their universities'
     }
   }
 
-  private async makeExam(students: Student[], questions: String[]) {
-    for (const student of students) {
+  private async makeExam(students: Student[], questions: String[]): Promise<Student[]> {
+    return await students.map((student) => {
       const fullName = `${student.name} ${student.surname}`;
 
-      const points = questions.reduce(function (acc, question) {
+      student.point = questions.reduce(function (acc, question) {
         return acc + (
           [...new Set(question.replace(/-/g, ' ').match(new RegExp(`[${fullName.replace(/-/g, ' ')}]`, 'g')))].length
         )
       }, 0);
 
-      student.point = points;
-    }
-
-    return students;
+      return student;
+    })
   }
 }

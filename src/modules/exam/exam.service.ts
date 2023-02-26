@@ -33,16 +33,10 @@ export class ExamService {
         return await this.universityModel.find();
     }
 
-    async attachStudentsToUniversity(university_id: Schema.Types.ObjectId, students: Student[]){
-        await this.studentModel.bulkWrite(
-            students.map((student) => ({
-                updateOne: {
-                    filter: { _id: student._id },
-                    update: { $set: {university_id, ...student} },
-                    upsert: true
-                }
-            }))
-        )
+    async attachStudentsToUniversity(students: Student[]) {
+        for (const student of students) {
+            await this.studentModel.findByIdAndUpdate(student._id, student, {new: true});
+        }
 
         return;
     }
