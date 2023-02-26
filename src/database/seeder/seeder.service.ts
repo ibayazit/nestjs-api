@@ -8,7 +8,6 @@ import { connect, connection, model, Schema, set } from 'mongoose'
 export class SeederService {
     private readonly logger = new Logger(SeederService.name);
 
-
     constructor(
         private httpService: HttpService,
     ) {

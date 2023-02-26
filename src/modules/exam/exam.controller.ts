@@ -12,10 +12,10 @@ export class ExamController {
     const students = await this.examService.students();
     const universities = await this.examService.universities();
     const questions = await this.examService.questions(examDate);
-    const examResults = this.makeExam(students, questions);
+    const examResults = await this.makeExam(students, questions);
 
     for (const university of universities) {
-      const studentChunk = (await examResults).splice(0, 5).map(student => {
+      const studentChunk = examResults.splice(0, 5).map(student => {
         student.university_id = university._id;
 
         return student;
@@ -35,7 +35,7 @@ export class ExamController {
 
       student.point = questions.reduce(function (acc, question) {
         return acc + (
-          [...new Set(question.replace(/-/g, ' ').match(new RegExp(`[${fullName.replace(/-/g, ' ')}]`, 'g')))].length
+          [...new Set(question.replace(/-/g, ' ').match(new RegExp(`[${fullName.replace(/-/g, ' ')}]`, 'gi')))].length
         )
       }, 0);
 
